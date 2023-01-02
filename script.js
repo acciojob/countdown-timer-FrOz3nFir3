@@ -2,7 +2,7 @@ var timeLeft = document.querySelector(".display__time-left");
 var endTime = document.querySelector(".display__end-time");
 var input = document.querySelector("input");
 
-var calledAlready = false;
+var previousTimers = {};
 function startTimer(duration) {
   var now = new Date();
 
@@ -10,30 +10,30 @@ function startTimer(duration) {
     minutes,
     seconds;
 
-  if (calledAlready == false) {
-    now.setMinutes(now.getMinutes() + duration / 60);
-    var ampm = now.getHours() >= 12 ? "PM" : "AM";
+  now.setMinutes(now.getMinutes() + duration / 60);
+  var ampm = now.getHours() >= 12 ? "PM" : "AM";
 
-    endTime.textContent = `${
-      now.getHours() == "12" ? 12 : now.getHours() % 12
-    }:${now.getMinutes()} ${ampm}`;
-    var timeId = setInterval(function () {
-      calledAlready = true;
-      minutes = parseInt(timer / 60, 10);
-      seconds = parseInt(timer % 60, 10);
+  endTime.textContent = `${
+    now.getHours() == "12" ? 12 : now.getHours() % 12
+  }:${now.getMinutes()} ${ampm}`;
 
-      minutes = minutes < 10 ? "0" + minutes : minutes;
-      seconds = seconds < 10 ? "0" + seconds : seconds;
-
-      timeLeft.textContent = minutes + ":" + seconds;
-
-      timer--;
-      if (timer < 0) {
-        window.clearInterval(timeId);
-        calledAlready = false;
-      }
-    }, 1000);
+  if (previousTimers.timeId) {
+    window.clearInterval(previousTimers.timeId);
   }
+  previousTimers.timeId = setInterval(function () {
+    minutes = parseInt(timer / 60, 10);
+    seconds = parseInt(timer % 60, 10);
+
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+    timeLeft.textContent = minutes + ":" + seconds;
+
+    timer--;
+    if (timer < 0) {
+      window.clearInterval(previousTimers.timeId);
+    }
+  }, 1000);
 }
 
 var form = document.querySelector("#custom");
@@ -53,4 +53,3 @@ for (let button of allButtons) {
     startTimer(time);
   });
 }
-
